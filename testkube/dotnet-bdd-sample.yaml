@@ -36,18 +36,19 @@ spec:
         periodSeconds: 1
   steps:
     - name: Run the BDD scenarios
+      container:
+        env:
+          - name: SELENIUM_URL
+            value: "http://{{ services.chrome.0.ip }}:4444/wd/hub"
+          - name: TEST_ENVIRONMENT
+            value: "{{ config.environment }}"
+          - name: ARTIFACTS_DIR
+            value: /data/artifacts
       shell: >-
         dotnet test BddSample.Tests/BddSample.Tests.csproj
         --filter "{{ config.filter }}"
         --logger "junit;LogFilePath=/data/artifacts/junit-report.xml"
         --logger "console;verbosity=normal"
-      env:
-        - name: SELENIUM_URL
-          value: "http://{{ services.chrome.0.ip }}:4444/wd/hub"
-        - name: TEST_ENVIRONMENT
-          value: "{{ config.environment }}"
-        - name: ARTIFACTS_DIR
-          value: /data/artifacts
     - name: Save the report and screenshots
       condition: always
       artifacts:
